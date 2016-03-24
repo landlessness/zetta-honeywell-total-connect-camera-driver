@@ -1,1 +1,1 @@
-# zetta-honeywell-total-connect-automation-driver
+# zetta-honeywell-total-connect-camera-driver

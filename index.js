@@ -1,15 +1,15 @@
 var Scout = require('zetta-scout');
 var util = require('util');
-var HoneywellTotalConnectAutomation = require('./honeywell_total_connect_automation');
-var AUTOMATION_DEVICE_CLASS_ID = 3;
+var HoneywellTotalConnectCamera = require('./honeywell_total_connect_camera');
+var CAMERA_DEVICE_CLASS_ID = 2;
 
-var HoneywellTotalConnectAutomationScout = module.exports = function() {
+var HoneywellTotalConnectCameraScout = module.exports = function() {
   Scout.call(this);
 };
-util.inherits(HoneywellTotalConnectAutomationScout, Scout);
+util.inherits(HoneywellTotalConnectCameraScout, Scout);
 
-HoneywellTotalConnectAutomationScout.prototype.init = function(next) {
-  var automationQuery = this.server.where({ type: 'automation' });
+HoneywellTotalConnectCameraScout.prototype.init = function(next) {
+  var cameraQuery = this.server.where({ type: 'camera' });
   var soapQuery = this.server.where({ type: 'soap' });
 
   var self = this;
@@ -18,29 +18,23 @@ HoneywellTotalConnectAutomationScout.prototype.init = function(next) {
     for (i=0; i < honeywellSoap.deviceLocations.length; i++) {
       console.log('device list: ' + util.inspect(honeywellSoap.deviceLocations[i].DeviceList.DeviceInfoBasic));
       var deviceLocation = honeywellSoap.deviceLocations[i];
-      automationDevices = deviceLocation.DeviceList.DeviceInfoBasic.filter(function(device) {
-        return device.DeviceClassID === AUTOMATION_DEVICE_CLASS_ID;
+      cameraDevices = deviceLocation.DeviceList.DeviceInfoBasic.filter(function(device) {
+        return device.DeviceClassID === CAMERA_DEVICE_CLASS_ID;
       });
-      for (j=0; j < automationDevices.length; j++) {
-        var automationDevice = automationDevices[i];
-        // TODO: grab and pass to the driver: GetAutomationDeviceStatusEx
-        honeywellSoap._getAutomationDeviceStatusEx(automationDevice.DeviceID, function(err, result, raw, soapHeader){
-          console.log('_getAutomationDeviceStatusEx result: ' + util.inspect(result));
-          var automationData = result.GetAutomationDeviceStatusExResult.AutomationData;
-          console.log('AutomationData Scout automationData: ' + util.inspect(automationData));
-          (function(deviceLocation, automationDevice, automationData){
-            console.log('deviceLocation.LocationID: ' +  deviceLocation.LocationID);
-            console.log('automationDevice.DeviceID: ' + automationDevice.DeviceID);
-            var query = self.server.where({type: 'automation', locationID: deviceLocation.LocationID, deviceID: automationDevice.DeviceID});
-            self.server.find(query, function(err, results) {
-              if (results[0]) {
-                self.provision(results[0], HoneywellTotalConnectAutomation, honeywellSoap, deviceLocation, automationDevice, automationData);
-              } else {
-                self.discover(HoneywellTotalConnectAutomation, honeywellSoap, deviceLocation, automationDevice, automationData);
-              }
-            });
-          })(deviceLocation, automationDevice, automationData);
-        });
+      for (j=0; j < cameraDevices.length; j++) {
+        var cameraDevice = cameraDevices[i];
+        (function(deviceLocation, cameraDevice){
+          console.log('deviceLocation.LocationID: ' +  deviceLocation.LocationID);
+          console.log('cameraDevice.DeviceID: ' + cameraDevice.DeviceID);
+          var query = self.server.where({type: 'camera', locationID: deviceLocation.LocationID, deviceID: cameraDevice.DeviceID});
+          self.server.find(query, function(err, results) {
+            if (results[0]) {
+              self.provision(results[0], HoneywellTotalConnectCamera, honeywellSoap, cameraDevice, deviceLocation);
+            } else {
+              self.discover(HoneywellTotalConnectCamera, honeywellSoap, cameraDevice, deviceLocation);
+            }
+          });
+        })(deviceLocation, cameraDevice);
       }
     }
     next();
