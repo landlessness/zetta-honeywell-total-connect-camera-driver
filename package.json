@@ -1,6 +1,6 @@
 {
   "name": "zetta-honeywell-total-connect-camera-driver",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A Zetta driver for Honeywell Total Connect cameras",
   "main": "index.js",
   "scripts": {
