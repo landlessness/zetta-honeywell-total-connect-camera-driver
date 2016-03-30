@@ -14,7 +14,7 @@ var TIMEOUT = 2000;
 
 var HoneywellTotalConnectCamera = module.exports = function() {
   HoneywellDevice.call(this, arguments[0], arguments[1], arguments[2].LocationID);
-
+  this.style = {properties: {}};
 };
 util.inherits(HoneywellTotalConnectCamera, HoneywellDevice);
 
@@ -30,15 +30,27 @@ HoneywellTotalConnectCamera.prototype.init = function(config) {
     .map('make-ready', this.makeReady)
     .map('make-not-ready', this.makeNotReady)
     .map('update-state', this.updateState, [{name: 'newState', type: 'text'}]);
+
+    this.style.properties.stateImage = {
+      url:'http://www.zettaapi.org/public/demo/totalconnect.jpg',
+      tintMode: 'original'
+    };
     
 };
 
 HoneywellTotalConnectCamera.prototype.makeReady = function(cb) {
   this.state = 'ready';
+  this.style.properties.stateImage = {
+    url:'http://www.zettaapi.org/public/demo/totalconnect.jpg',
+    tintMode: 'original'
+  };
   cb();
 }
 
 HoneywellTotalConnectCamera.prototype.makeNotReady = function(cb) {
   this.state = 'not-ready'
+  this.style.properties.stateImage = {
+    url:'http://www.zettaapi.org/icons/camera-not-ready.png'
+  };
   cb();
 }
